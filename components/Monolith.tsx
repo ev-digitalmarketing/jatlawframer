@@ -1,8 +1,10 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { animate, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 
+const Statue = dynamic(() => import("./StatueScene"), { ssr: false });
 const N = 12; // extrusion slices (more = smoother edges)
 
 export default function Monolith() {
@@ -16,6 +18,10 @@ export default function Monolith() {
   const turns = useMotionValue(0);  // +360 each time we move to the next section
   const sideS = useSpring(side, { stiffness: 60, damping: 18 });
   const turnsS = useSpring(turns, { stiffness: 40, damping: 14 });
+  const [model, setModel] = useState(false); // true once public/statue.glb exists
+  useEffect(() => {
+    fetch("/statue.glb", { method: "HEAD" }).then((r) => setModel(r.ok && !(r.headers.get("content-type") || "").includes("html"))).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const a = animate(appear, 1, { duration: 1.8, ease: [0.22, 1, 0.36, 1] });
@@ -75,6 +81,9 @@ export default function Monolith() {
       </svg>
       <motion.div style={{ scale, opacity, perspective: 1100 }} className="relative h-full w-full">
         <div className="absolute left-1/2 top-full -mt-2 h-4 w-3/4 -translate-x-1/2 rounded-full bg-black/40 blur-md" />
+        {model ? (
+          <div className="absolute left-1/2 top-0 h-full w-[calc(var(--h)*0.68)] -translate-x-1/2"><Statue rotY={rotateY} /></div>
+        ) : (
         <motion.div style={{ rotateY, rotateX, transformStyle: "preserve-3d" }} className="relative h-full w-full">
           {Array.from({ length: N }).map((_, i) => (
             <svg key={i} viewBox={VB} className="absolute inset-0 h-full w-full"
@@ -89,7 +98,7 @@ export default function Monolith() {
               <path d="M74 132 L126 116" />
             </g>
           </svg>
-        </motion.div>
+        </motion.div>)}
       </motion.div>
     </motion.div>
   );
