@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Btn, HeroStack, Reveal, Section, Tilt } from "@/components/ui";
+import { Btn, Reveal, Section, Tilt } from "@/components/ui";
 import Testimonials from "@/components/Testimonials";
 import { services } from "@/lib/data";
 
@@ -25,7 +25,7 @@ export default function Home() {
               <Btn href="#services" variant="line">Explore Services</Btn>
             </div>
           </Reveal>
-          <HeroStack />
+          <div className="hidden min-h-72 md:block" aria-hidden />
         </div>
       </Section>
 
