@@ -25,7 +25,7 @@ export default function ServicePage({ params }: Props) {
       </PageHero>
       <Section tone="ivory" label="How we help">
         <Reveal><h2 className="text-3xl font-extrabold">How we help</h2></Reveal>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2">
           {s.points.map((p, i) => (
             <Reveal key={p} delay={i * 0.07} className="h-full">
               <Tilt className="h-full">

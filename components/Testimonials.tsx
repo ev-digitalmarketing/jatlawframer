@@ -4,7 +4,7 @@ import { Reveal, Tilt } from "./ui";
 
 export default function Testimonials({ limit }: { limit?: number }) {
   return (
-    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
       {reviews.slice(0, limit).map((r, i) => (
         <Reveal key={r.name} delay={i * 0.08} className="h-full">
           <Tilt className="h-full" max={6}>

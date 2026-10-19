@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <>
       <Section tone="navy" label="Welcome" className="overflow-hidden">
-        <div className="grid items-center gap-8 md:grid-cols-2">
+        <div className="max-w-2xl">
           <Reveal>
             <p className="eyebrow">Barrister & Solicitor · Mississauga</p>
             <h1 className="mt-3 text-4xl font-extrabold leading-tight md:text-6xl">Clear counsel.<br /><span className="text-gold">Confident outcomes.</span></h1>
@@ -25,7 +25,6 @@ export default function Home() {
               <Btn href="#services" variant="line">Explore Services</Btn>
             </div>
           </Reveal>
-          <div className="hidden min-h-72 md:block" aria-hidden />
         </div>
       </Section>
 
@@ -52,7 +51,7 @@ export default function Home() {
 
       <Section tone="gold" label="Your journey">
         <Reveal><p className="eyebrow !text-navy">Step 2 · Your journey</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">What working with us looks like</h2></Reveal>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2">
           {steps.map(([t, d], i) => (
             <Reveal key={t} delay={i * 0.08} className="h-full">
               <Tilt className="h-full">

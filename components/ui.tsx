@@ -21,7 +21,7 @@ export function Section({ tone, id, label, className = "", children }: { tone: k
   const slug = id ?? label?.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   return (
     <section ref={ref} id={slug} data-label={label} className={`slab scroll-mt-14 overflow-x-clip ${tones[tone]} px-4 pb-8 md:px-10 md:pb-10 ${className}`}>
-      <motion.div style={reduce ? undefined : { rotateX, scale, y, transformPerspective: 1200 }} className="mx-auto max-w-6xl">
+      <motion.div style={reduce ? undefined : { rotateX, scale, y, transformPerspective: 1200 }} className="lane mx-auto max-w-6xl">
         {children}
         {next && (
           <div className="mt-6 flex justify-center">

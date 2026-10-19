@@ -17,7 +17,7 @@ export default function Consultation() {
         <Btn href="#contact" variant="line">Use the form</Btn>
       </PageHero>
       <Section tone="ivory" label="What to expect">
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-2">
           {steps.map(([t, d], i) => (
             <Reveal key={t} delay={i * 0.08} className="h-full">
               <Tilt className="h-full">

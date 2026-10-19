@@ -16,7 +16,7 @@ export default function Contact() {
         <Btn href="/consultation" variant="line">Free Consultation</Btn>
       </PageHero>
       <Section tone="ivory" label="Reach us">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2">
           {cards.map(({ Icon, t, v, h }, i) => (
             <Reveal key={t} delay={i * 0.06} className="h-full">
               <a href={h} className="block h-full">
