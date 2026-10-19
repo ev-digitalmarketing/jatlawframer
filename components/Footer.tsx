@@ -14,7 +14,7 @@ export default function Footer() {
     setSent(true);
   }
   return (
-    <footer id="contact" className="bg-ink px-4 py-10 text-white md:px-10">
+    <footer id="contact" data-label="Contact" className="slab scroll-mt-14 bg-ink px-4 pb-10 text-white md:px-10">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-5">
         <Reveal className="lg:col-span-2">
           <p className="eyebrow">Contact Jat Law</p>

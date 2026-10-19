@@ -16,7 +16,7 @@ export default function About() {
         text="Jat Law Professional Corporation is a Mississauga law firm led by Rizwan Jat. Clients tell us the same thing again and again: we explain every step, we pick up the phone, and we care about the outcome.">
         <Btn href="/consultation">Free Consultation</Btn>
       </PageHero>
-      <Section tone="ivory">
+      <Section tone="ivory" label="Our values">
         <div className="grid gap-3 md:grid-cols-3">
           {values.map(([Icon, t, d], i) => (
             <Reveal key={t} delay={i * 0.08} className="h-full">
@@ -31,7 +31,7 @@ export default function About() {
           ))}
         </div>
       </Section>
-      <Section tone="gold">
+      <Section tone="gold" label="Services">
         <Reveal><h2 className="text-3xl font-extrabold">Where we can help</h2></Reveal>
         <div className="mt-4 flex flex-wrap gap-2">
           {services.map((s) => (

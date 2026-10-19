@@ -15,7 +15,7 @@ export default function Contact() {
         <Btn href={biz.tel}>Call {biz.phone}</Btn>
         <Btn href="/consultation" variant="line">Free Consultation</Btn>
       </PageHero>
-      <Section tone="ivory">
+      <Section tone="ivory" label="Reach us">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map(({ Icon, t, v, h }, i) => (
             <Reveal key={t} delay={i * 0.06} className="h-full">
@@ -43,7 +43,7 @@ export default function Contact() {
           </Reveal>
         </div>
       </Section>
-      <Section tone="gold">
+      <Section tone="gold" label="Reviews">
         <Reveal><h2 className="text-3xl font-extrabold">Why clients recommend us</h2></Reveal>
         <div className="mt-4"><Testimonials limit={3} /></div>
       </Section>

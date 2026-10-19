@@ -14,7 +14,7 @@ const steps = [
 export default function Home() {
   return (
     <>
-      <Section tone="navy" className="overflow-hidden">
+      <Section tone="navy" label="Welcome" className="overflow-hidden">
         <div className="grid items-center gap-8 md:grid-cols-2">
           <Reveal>
             <p className="eyebrow">Barrister & Solicitor · Mississauga</p>
@@ -29,7 +29,7 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section tone="ivory" id="services">
+      <Section tone="ivory" id="services" label="Services">
         <Reveal><p className="eyebrow !text-navy/60">Step 1 · Choose your service</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">How can we help?</h2></Reveal>
         <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {services.map((s, i) => (
@@ -50,7 +50,7 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section tone="gold">
+      <Section tone="gold" label="Your journey">
         <Reveal><p className="eyebrow !text-navy">Step 2 · Your journey</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">What working with us looks like</h2></Reveal>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map(([t, d], i) => (
@@ -67,7 +67,7 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section tone="navy">
+      <Section tone="navy" label="Reviews">
         <Reveal><p className="eyebrow">Step 3 · Hear from clients</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">Trusted across the GTA</h2></Reveal>
         <div className="mt-5"><Testimonials limit={3} /></div>
         <div className="mt-5"><Btn href="/testimonials" variant="line">Read all reviews</Btn></div>

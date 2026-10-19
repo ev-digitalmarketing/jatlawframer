@@ -23,7 +23,7 @@ export default function ServicePage({ params }: Props) {
       <PageHero eyebrow={s.tag} title={s.title} text={s.intro}>
         <Btn href="/consultation">Free Consultation</Btn>
       </PageHero>
-      <Section tone="ivory">
+      <Section tone="ivory" label="How we help">
         <Reveal><h2 className="text-3xl font-extrabold">How we help</h2></Reveal>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {s.points.map((p, i) => (
@@ -38,7 +38,7 @@ export default function ServicePage({ params }: Props) {
           ))}
         </div>
       </Section>
-      <Section tone="gold">
+      <Section tone="gold" label="Other services">
         <Reveal><h2 className="text-3xl font-extrabold">Other services</h2></Reveal>
         <div className="mt-4 flex flex-wrap gap-2">
           {services.filter((x) => x.slug !== s.slug).map((x) => (

@@ -4,10 +4,13 @@
 
 @layer base {
   html { scroll-behavior: smooth; }
+  body { overflow-x: clip; }
   body { @apply bg-ivory font-body text-navy antialiased; }
   h1, h2, h3, h4 { @apply font-heading; }
 }
 @layer components {
+  .slab { --cut: clamp(24px, 4vw, 56px); position: relative; clip-path: polygon(0 var(--cut), 100% 0, 100% 100%, 0 100%); margin-top: calc(var(--cut) * -1); padding-top: calc(var(--cut) + 1.5rem); }
+  .slab:first-child { clip-path: none; margin-top: 0; padding-top: 1.5rem; }
   .btn { @apply inline-flex items-center gap-2 rounded-full px-6 py-3 font-heading text-sm font-bold shadow-3d; }
   .nav { @apply relative after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-gold after:transition-all hover:after:w-full; }
   .field { @apply w-full rounded-md border border-white/20 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/50 focus:border-gold focus:bg-white/10; }

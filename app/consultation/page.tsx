@@ -16,7 +16,7 @@ export default function Consultation() {
         <Btn href={biz.tel}>Call {biz.phone}</Btn>
         <Btn href="#contact" variant="line">Use the form</Btn>
       </PageHero>
-      <Section tone="ivory">
+      <Section tone="ivory" label="What to expect">
         <div className="grid gap-3 md:grid-cols-4">
           {steps.map(([t, d], i) => (
             <Reveal key={t} delay={i * 0.08} className="h-full">
@@ -37,7 +37,7 @@ export default function Consultation() {
           </Reveal>
         </div>
       </Section>
-      <Section tone="gold">
+      <Section tone="gold" label="Reviews">
         <Reveal><h2 className="text-3xl font-extrabold">What clients say</h2></Reveal>
         <div className="mt-4"><Testimonials limit={3} /></div>
       </Section>

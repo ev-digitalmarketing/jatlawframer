@@ -1,15 +1,39 @@
 "use client";
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 
 const spring = { type: "spring", stiffness: 300, damping: 20 } as const;
 const tones = { navy: "bg-navy text-white", ink: "bg-ink text-white", ivory: "bg-ivory text-navy", gold: "bg-gold text-ink" };
 
-export function Section({ tone, id, className = "", children }: { tone: keyof typeof tones; id?: string; className?: string; children: ReactNode }) {
+export function Section({ tone, id, label, className = "", children }: { tone: keyof typeof tones; id?: string; label?: string; className?: string; children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const [next, setNext] = useState<string | null>(null);
+  const enter = useScroll({ target: ref, offset: ["start end", "start 55%"] }).scrollYProgress;
+  const leave = useScroll({ target: ref, offset: ["end 60%", "end start"] }).scrollYProgress;
+  const rotateX = useTransform([enter, leave], (v: number[]) => (1 - v[0]) * 14 - v[1] * 8);
+  const scale = useTransform([enter, leave], (v: number[]) => 1 - (1 - v[0]) * 0.08 - v[1] * 0.05);
+  const y = useTransform(enter, (v) => (1 - v) * 50);
+  const target = () => (ref.current?.nextElementSibling ?? document.getElementById("contact")) as HTMLElement | null;
+  useEffect(() => { setNext(target()?.dataset.label ?? null); }, []);
+  const slug = id ?? label?.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   return (
-    <section id={id} className={`${tones[tone]} px-4 py-8 md:px-10 md:py-10 ${className}`}>
-      <div className="mx-auto max-w-6xl">{children}</div>
+    <section ref={ref} id={slug} data-label={label} className={`slab scroll-mt-14 overflow-x-clip ${tones[tone]} px-4 pb-8 md:px-10 md:pb-10 ${className}`}>
+      <motion.div style={reduce ? undefined : { rotateX, scale, y, transformPerspective: 1200 }} className="mx-auto max-w-6xl">
+        {children}
+        {next && (
+          <div className="mt-6 flex justify-center">
+            <motion.button type="button" onClick={() => target()?.scrollIntoView({ behavior: "smooth" })}
+              whileHover={{ y: -3, scale: 1.05 }} transition={spring}
+              className="inline-flex items-center gap-2 rounded-full border border-current px-4 py-2 font-heading text-[11px] font-bold uppercase tracking-widest">
+              Next: {next}
+              <motion.span animate={{ y: [0, 4, 0] }} transition={{ duration: 1.6, repeat: Infinity }}><ChevronDown size={14} /></motion.span>
+            </motion.button>
+          </div>
+        )}
+      </motion.div>
     </section>
   );
 }
@@ -51,7 +75,7 @@ export function Btn({ href, children, variant = "gold" }: { href: string; childr
 
 export function PageHero({ eyebrow, title, text, children }: { eyebrow: string; title: string; text: string; children?: ReactNode }) {
   return (
-    <Section tone="navy">
+    <Section tone="navy" label="Overview">
       <Reveal className="max-w-3xl">
         <p className="eyebrow">{eyebrow}</p>
         <h1 className="mt-3 text-4xl font-extrabold leading-tight md:text-5xl">{title}</h1>
@@ -65,9 +89,9 @@ export function PageHero({ eyebrow, title, text, children }: { eyebrow: string; 
 export function HeroStack() {
   return (
     <Tilt max={16} className="mx-auto w-72 md:w-96">
-      <div className="flex h-72 gap-2 md:h-96" style={{ transformStyle: "preserve-3d" }}>
+      <div className="flex h-72 gap-2 md:h-96" style={{ transformStyle: "preserve-3d", transform: "rotateY(-24deg) rotateX(10deg)" }}>
         {["J", "A", "T"].map((l, i) => (
-          <motion.div key={l} style={{ z: i * 36, clipPath: "polygon(0 14%,100% 0,100% 100%,0 100%)" }}
+          <motion.div key={l} style={{ z: i * 50, clipPath: "polygon(0 14%,100% 0,100% 100%,0 100%)" }}
             animate={{ y: [0, -10, 0] }} transition={{ duration: 5, delay: i * 0.5, repeat: Infinity, ease: "easeInOut" }}
             className="flex flex-1 items-end justify-center bg-gold pb-6 font-serif text-6xl font-bold text-ivory md:text-7xl">
             {l}

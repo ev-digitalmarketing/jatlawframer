@@ -3,6 +3,7 @@ import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Rail from "@/components/Rail";
 
 const mont = Montserrat({ subsets: ["latin"], variable: "--font-mont", weight: ["500", "600", "700", "800"] });
 const open = Open_Sans({ subsets: ["latin"], variable: "--font-open" });
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${mont.variable} ${open.variable}`}>
       <body>
         <Header />
+        <Rail />
         <main>{children}</main>
         <Footer />
       </body>
