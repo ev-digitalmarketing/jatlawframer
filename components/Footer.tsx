@@ -45,9 +45,10 @@ export default function Footer() {
           </form>
         </Reveal>
       </div>
-      <p className="mx-auto mt-8 max-w-6xl border-t border-white/10 pt-4 text-xs text-white/50">
-        © {new Date().getFullYear()} Jat Law Professional Corporation. Information on this site is general and is not legal advice.
-      </p>
+      <div className="mx-auto mt-8 flex max-w-6xl flex-col gap-2 border-t border-white/10 pt-4 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
+        <p>© {new Date().getFullYear()} Jat Law Professional Corporation. Information on this site is general and is not legal advice.</p>
+        <p>Website by <a href="https://elevateviral.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-gold underline-offset-4 transition hover:text-white hover:underline">EV Digital</a></p>
+      </div>
     </footer>
   );
 }

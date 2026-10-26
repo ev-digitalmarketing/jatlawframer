@@ -13,6 +13,7 @@ const config: Config = {
       fontFamily: {
         heading: ["var(--font-mont)", "sans-serif"],
         body: ["var(--font-open)", "sans-serif"],
+        script: ["var(--font-script)", "cursive"],
       },
       boxShadow: {
         "3d": "0 24px 40px -18px rgba(5,18,36,.55), 0 2px 0 rgba(255,255,255,.18) inset",

@@ -31,11 +31,11 @@ export default function About() {
           ))}
         </div>
       </Section>
-      <Section tone="gold" label="Services">
+      <Section tone="navy" label="Services">
         <Reveal><h2 className="text-3xl font-extrabold">Where we can help</h2></Reveal>
         <div className="mt-4 flex flex-wrap gap-2">
           {services.map((s) => (
-            <Link key={s.slug} href={`/services/${s.slug}`} className="rounded-full bg-navy px-4 py-2 font-heading text-sm font-semibold text-white shadow-3d transition hover:-translate-y-1 hover:text-gold">{s.title}</Link>
+            <Link key={s.slug} href={`/services/${s.slug}`} className="rounded-full bg-white/10 px-4 py-2 font-heading text-sm font-semibold text-white ring-1 ring-gold/50 transition hover:-translate-y-1 hover:bg-gold hover:text-ink">{s.title}</Link>
           ))}
         </div>
       </Section>

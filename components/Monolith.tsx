@@ -82,7 +82,7 @@ export default function Monolith() {
       <motion.div style={{ scale, opacity, perspective: 1100 }} className="relative h-full w-full">
         <div className="absolute left-1/2 top-full -mt-2 h-4 w-3/4 -translate-x-1/2 rounded-full bg-black/40 blur-md" />
         {model ? (
-          <div className="absolute left-1/2 top-0 h-full w-[calc(var(--h)*0.68)] -translate-x-1/2"><Statue rotY={rotateY} /></div>
+          <div className="absolute left-1/2 top-0 h-full w-[calc(var(--h)*1.0)] -translate-x-1/2"><Statue rotY={rotateY} /></div>
         ) : (
         <motion.div style={{ rotateY, rotateX, transformStyle: "preserve-3d" }} className="relative h-full w-full">
           {Array.from({ length: N }).map((_, i) => (

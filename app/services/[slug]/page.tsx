@@ -38,11 +38,11 @@ export default function ServicePage({ params }: Props) {
           ))}
         </div>
       </Section>
-      <Section tone="gold" label="Other services">
+      <Section tone="navy" label="Other services">
         <Reveal><h2 className="text-3xl font-extrabold">Other services</h2></Reveal>
         <div className="mt-4 flex flex-wrap gap-2">
           {services.filter((x) => x.slug !== s.slug).map((x) => (
-            <Link key={x.slug} href={`/services/${x.slug}`} className="rounded-full bg-navy px-4 py-2 font-heading text-sm font-semibold text-white shadow-3d transition hover:-translate-y-1 hover:text-gold">{x.title}</Link>
+            <Link key={x.slug} href={`/services/${x.slug}`} className="rounded-full bg-white/10 px-4 py-2 font-heading text-sm font-semibold text-white ring-1 ring-gold/50 transition hover:-translate-y-1 hover:bg-gold hover:text-ink">{x.title}</Link>
           ))}
         </div>
       </Section>

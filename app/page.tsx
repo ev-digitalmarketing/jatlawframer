@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Btn, Reveal, Section, Tilt } from "@/components/ui";
+import { Btn, Reveal, Section, Slider, Tilt } from "@/components/ui";
+import Journey from "@/components/Journey";
 import Testimonials from "@/components/Testimonials";
 import { services } from "@/lib/data";
 
@@ -30,10 +31,10 @@ export default function Home() {
 
       <Section tone="ivory" id="services" label="Services">
         <Reveal><p className="eyebrow !text-navy/60">Step 1 · Choose your service</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">How can we help?</h2></Reveal>
-        <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {services.map((s, i) => (
-            <Reveal key={s.slug} delay={i * 0.06} className="h-full">
-              <Link href={`/services/${s.slug}`} className="block h-full">
+        <div className="mt-5">
+          <Slider label="Our services">
+            {services.map((s) => (
+              <Link key={s.slug} href={`/services/${s.slug}`} className="block h-full">
                 <Tilt className="h-full">
                   <div className="h-full rounded-xl border border-navy/15 bg-white p-5 shadow-3d" style={{ transformStyle: "preserve-3d" }}>
                     <div style={{ transform: "translateZ(40px)" }} className="grid h-12 w-12 place-items-center rounded-lg bg-navy text-gold shadow-3d"><s.icon size={24} /></div>
@@ -44,31 +45,18 @@ export default function Home() {
                   </div>
                 </Tilt>
               </Link>
-            </Reveal>
-          ))}
+            ))}
+          </Slider>
         </div>
       </Section>
 
-      <Section tone="gold" label="Your journey">
-        <Reveal><p className="eyebrow !text-navy">Step 2 · Your journey</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">What working with us looks like</h2></Reveal>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-2">
-          {steps.map(([t, d], i) => (
-            <Reveal key={t} delay={i * 0.08} className="h-full">
-              <Tilt className="h-full">
-                <div className="h-full rounded-xl bg-navy p-5 text-white shadow-3d" style={{ transformStyle: "preserve-3d" }}>
-                  <span style={{ transform: "translateZ(50px)" }} className="block font-heading text-5xl font-extrabold text-gold">0{i + 1}</span>
-                  <h3 className="mt-2 text-lg font-bold">{t}</h3>
-                  <p className="mt-1 text-sm text-white/80">{d}</p>
-                </div>
-              </Tilt>
-            </Reveal>
-          ))}
-        </div>
+      <Section tone="navy" label="Your journey">
+        <Journey eyebrow="Step 2 · Your journey" title="What working with us looks like" steps={steps} />
       </Section>
 
-      <Section tone="navy" label="Reviews">
-        <Reveal><p className="eyebrow">Step 3 · Hear from clients</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">Trusted across the GTA</h2></Reveal>
-        <div className="mt-5"><Testimonials limit={3} /></div>
+      <Section tone="ivory" label="Reviews">
+        <Reveal><p className="eyebrow !text-navy/60">Step 3 · Hear from clients</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">Trusted across the GTA</h2></Reveal>
+        <div className="mt-5"><Testimonials limit={5} desktopCount={2} /></div>
         <div className="mt-5"><Btn href="/testimonials" variant="line">Read all reviews</Btn></div>
       </Section>
     </>

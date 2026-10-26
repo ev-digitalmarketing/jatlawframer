@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Children, useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
-import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type Variants } from "framer-motion";
 
 const spring = { type: "spring", stiffness: 300, damping: 20 } as const;
 const tones = { navy: "bg-navy text-white", ink: "bg-ink text-white", ivory: "bg-ivory text-navy", gold: "bg-gold text-ink" };
@@ -60,6 +60,54 @@ export function Tilt({ children, className = "", max = 10 }: { children: ReactNo
         onMouseLeave={() => { x.set(0); y.set(0); }}>
         {children}
       </motion.div>
+    </div>
+  );
+}
+
+const sliderParent: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
+const sliderItem: Variants = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+
+/** Swipeable, snap-scrolling slider on phones; a normal grid from `md` up. */
+export function Slider({ children, label, desktop = "md:grid-cols-2 lg:grid-cols-3", desktopCount, lastSpan = false }:
+  { children: ReactNode; label: string; desktop?: string; desktopCount?: number; lastSpan?: boolean }) {
+  const items = Children.toArray(children);
+  const ref = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const onScroll = () => {
+    const el = ref.current; if (!el) return;
+    const mid = el.scrollLeft + el.clientWidth / 2;
+    let best = 0, dist = Infinity;
+    (Array.from(el.children) as HTMLElement[]).forEach((k, n) => {
+      const d = Math.abs(k.offsetLeft + k.offsetWidth / 2 - mid);
+      if (d < dist) { dist = d; best = n; }
+    });
+    setActive(best);
+  };
+  const go = (n: number) => {
+    const el = ref.current; const k = el?.children[n] as HTMLElement | undefined;
+    if (el && k) el.scrollTo({ left: k.offsetLeft - parseFloat(getComputedStyle(el).paddingLeft || "0"), behavior: "smooth" });
+  };
+  const odd = items.length % 2 === 1;
+  const dots = items.length;
+  return (
+    <div role="region" aria-label={label} aria-roledescription="carousel">
+      <motion.div ref={ref} onScroll={onScroll} variants={sliderParent} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}
+        className={`relative -mx-4 -mb-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 px-4 pb-8 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:mb-0 md:grid md:snap-none md:overflow-visible md:px-0 md:pb-0 md:pt-0 ${desktop}`}>
+        {items.map((it, i) => (
+          <motion.div key={i} variants={sliderItem}
+            className={`h-full shrink-0 basis-[84%] snap-start sm:basis-[55%] md:basis-auto ${desktopCount !== undefined && i >= desktopCount ? "md:hidden" : ""} ${lastSpan && odd && i === items.length - 1 ? "md:col-span-2" : ""}`}>
+            {it}
+          </motion.div>
+        ))}
+      </motion.div>
+      {dots > 1 && (
+        <div className="mt-1 flex justify-center gap-2 md:hidden" role="group" aria-label={`${label} pagination`}>
+          {items.map((_, n) => (
+            <button key={n} type="button" aria-label={`Go to slide ${n + 1}`} aria-current={n === active} onClick={() => go(n)}
+              className={`h-2 rounded-full transition-all duration-300 ${n === active ? "w-6 bg-gold" : "w-2 bg-current opacity-30"}`} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
