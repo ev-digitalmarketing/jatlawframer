@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Btn, Reveal, Section, Slider, Tilt } from "@/components/ui";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import { Btn, Slider, Tilt } from "@/components/ui";
 import Journey from "@/components/Journey";
 import Testimonials from "@/components/Testimonials";
+import CourtroomStage, { Stage } from "@/components/CourtroomStage";
 import { services } from "@/lib/data";
 
 const steps = [
@@ -14,30 +15,34 @@ const steps = [
 
 export default function Home() {
   return (
-    <>
-      <Section tone="navy" label="Welcome" className="overflow-hidden">
-        <div className="max-w-2xl">
-          <Reveal>
-            <p className="eyebrow">Barrister & Solicitor · Mississauga</p>
-            <h1 className="mt-3 text-4xl font-extrabold leading-tight md:text-6xl">Clear counsel.<br /><span className="text-gold">Confident outcomes.</span></h1>
-            <p className="mt-4 max-w-md text-white/80">Real estate, litigation, corporate, estates and family matters, handled with care, precision and plain-language advice.</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Btn href="/consultation">Free Consultation</Btn>
-              <Btn href="#services" variant="line">Explore Services</Btn>
-            </div>
-          </Reveal>
+    <CourtroomStage>
+      <Stage id="welcome" label="Welcome" hero>
+        <p className="eyebrow">Barrister & Solicitor · Mississauga</p>
+        <h1 className="mt-4 text-4xl font-extrabold leading-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.65)] md:text-6xl lg:text-7xl">
+          Clear counsel.<br /><span className="text-gold">Confident outcomes.</span>
+        </h1>
+        <p className="mx-auto mt-5 max-w-xl text-white/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] md:text-lg">
+          Real estate, litigation, corporate, estates and family matters, handled with care, precision and plain-language advice.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Btn href="/consultation">Free Consultation</Btn>
+          <Btn href="#services" variant="line">Explore Services</Btn>
         </div>
-      </Section>
+        <p className="mt-12 flex items-center justify-center gap-2 font-heading text-[11px] font-bold uppercase tracking-[0.3em] text-white/60">
+          Scroll to walk in <ChevronDown size={14} className="animate-bounce" />
+        </p>
+      </Stage>
 
-      <Section tone="ivory" id="services" label="Services">
-        <Reveal><p className="eyebrow !text-navy/60">Step 1 · Choose your service</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">How can we help?</h2></Reveal>
-        <div className="mt-5">
+      <Stage id="services" label="Services">
+        <p className="eyebrow">Step 1 · Choose your service</p>
+        <h2 className="mt-2 text-3xl font-extrabold md:text-5xl">How can we help?</h2>
+        <div className="mt-8">
           <Slider label="Our services">
             {services.map((s) => (
               <Link key={s.slug} href={`/services/${s.slug}`} className="block h-full">
                 <Tilt className="h-full">
-                  <div className="h-full rounded-xl border border-navy/15 bg-white p-5 shadow-3d" style={{ transformStyle: "preserve-3d" }}>
-                    <div style={{ transform: "translateZ(40px)" }} className="grid h-12 w-12 place-items-center rounded-lg bg-navy text-gold shadow-3d"><s.icon size={24} /></div>
+                  <div className="h-full rounded-xl border border-white/20 bg-white p-5 text-center text-navy shadow-3d" style={{ transformStyle: "preserve-3d" }}>
+                    <div style={{ transform: "translateZ(40px)" }} className="mx-auto grid h-12 w-12 place-items-center rounded-lg bg-navy text-gold shadow-3d"><s.icon size={24} /></div>
                     <h3 style={{ transform: "translateZ(20px)" }} className="mt-4 text-lg font-bold">{s.title}</h3>
                     <p className="text-xs font-semibold uppercase tracking-wider text-gold">{s.tag}</p>
                     <p className="mt-2 text-sm text-navy/80">{s.intro}</p>
@@ -48,17 +53,20 @@ export default function Home() {
             ))}
           </Slider>
         </div>
-      </Section>
+      </Stage>
 
-      <Section tone="navy" label="Your journey">
-        <Journey eyebrow="Step 2 · Your journey" title="What working with us looks like" steps={steps} />
-      </Section>
+      <Stage id="your-journey" label="Your journey">
+        <div className="rounded-3xl border border-white/10 bg-ink/65 p-6 shadow-3d backdrop-blur-md md:p-12">
+          <Journey center eyebrow="Step 2 · Your journey" title="What working with us looks like" steps={steps} />
+        </div>
+      </Stage>
 
-      <Section tone="ivory" label="Reviews">
-        <Reveal><p className="eyebrow !text-navy/60">Step 3 · Hear from clients</p><h2 className="mt-2 text-3xl font-extrabold md:text-4xl">Trusted across the GTA</h2></Reveal>
-        <div className="mt-5"><Testimonials limit={5} desktopCount={2} /></div>
-        <div className="mt-5"><Btn href="/testimonials" variant="line">Read all reviews</Btn></div>
-      </Section>
-    </>
+      <Stage id="reviews" label="Reviews">
+        <p className="eyebrow">Step 3 · Hear from clients</p>
+        <h2 className="mt-2 text-3xl font-extrabold md:text-5xl">Trusted across the GTA</h2>
+        <div className="mt-8"><Testimonials limit={5} desktopCount={2} /></div>
+        <div className="mt-8 flex justify-center"><Btn href="/testimonials" variant="line">Read all reviews</Btn></div>
+      </Stage>
+    </CourtroomStage>
   );
 }

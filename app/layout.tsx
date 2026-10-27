@@ -4,7 +4,6 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Rail from "@/components/Rail";
-import Monolith from "@/components/Monolith";
 
 const mont = Montserrat({ subsets: ["latin"], variable: "--font-mont", weight: ["500", "600", "700", "800"] });
 const open = Open_Sans({ subsets: ["latin"], variable: "--font-open" });
@@ -21,7 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Header />
         <Rail />
-        <Monolith />
         <main>{children}</main>
         <Footer />
       </body>
