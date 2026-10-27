@@ -39,7 +39,7 @@ export default function Consultation() {
       </Section>
       <Section tone="navy" label="Reviews">
         <Reveal><h2 className="text-3xl font-extrabold">What clients say</h2></Reveal>
-        <div className="mt-4"><Testimonials limit={5} desktopCount={2} /></div>
+        <div className="mt-4"><Testimonials /></div>
       </Section>
     </>
   );

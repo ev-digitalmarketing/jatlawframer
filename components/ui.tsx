@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
-import { Children, useEffect, useRef, useState, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
-import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type Variants } from "framer-motion";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 
 const spring = { type: "spring", stiffness: 300, damping: 20 } as const;
-const tones = { navy: "bg-navy text-white", ink: "bg-ink text-white", ivory: "bg-ivory text-navy", gold: "bg-gold text-ink" };
+const tones = { navy: "bg-navy text-white", ink: "bg-ink text-white", ivory: "bg-ivory text-navy" };
 
 export function Section({ tone, id, label, className = "", children }: { tone: keyof typeof tones; id?: string; label?: string; className?: string; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
@@ -64,50 +64,76 @@ export function Tilt({ children, className = "", max = 10 }: { children: ReactNo
   );
 }
 
-const sliderParent: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
-const sliderItem: Variants = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
-
-/** Swipeable, snap-scrolling slider on phones; a normal grid from `md` up. */
-export function Slider({ children, label, desktop = "md:grid-cols-2 lg:grid-cols-3", desktopCount, lastSpan = false }:
-  { children: ReactNode; label: string; desktop?: string; desktopCount?: number; lastSpan?: boolean }) {
-  const items = Children.toArray(children);
-  const ref = useRef<HTMLDivElement>(null);
+/**
+ * Swipeable slider on phones (scroll-snap, so it feels native), a normal grid from `md` up.
+ * Pass the grid classes for larger screens in `grid`, e.g. "md:grid-cols-2 lg:grid-cols-3".
+ * Cards fade up together as the slider enters, whether or not they are on screen yet.
+ */
+export function Slider({ items, grid = "", tone = "light", label, desktopMax }: {
+  items: ReactNode[]; grid?: string; tone?: "light" | "dark"; label: string;
+  /** On `md` and up only the first `desktopMax` items are shown (phones still get every item). */
+  desktopMax?: number;
+}) {
+  const scroller = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
   const [active, setActive] = useState(0);
-  const onScroll = () => {
-    const el = ref.current; if (!el) return;
-    const mid = el.scrollLeft + el.clientWidth / 2;
-    let best = 0, dist = Infinity;
-    (Array.from(el.children) as HTMLElement[]).forEach((k, n) => {
-      const d = Math.abs(k.offsetLeft + k.offsetWidth / 2 - mid);
-      if (d < dist) { dist = d; best = n; }
-    });
-    setActive(best);
+  const slides = () => Array.from(scroller.current?.children ?? []) as HTMLElement[];
+
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const kids = slides().filter((k) => k.offsetParent !== null);
+      if (!kids.length) return;
+      if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 4) return setActive(kids.length - 1);
+      const x = el.scrollLeft + parseFloat(getComputedStyle(el).paddingLeft);
+      let best = 0;
+      kids.forEach((k, i) => { if (Math.abs(k.offsetLeft - x) < Math.abs(kids[best].offsetLeft - x)) best = i; });
+      setActive(best);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => { el.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
+  const go = (i: number) => {
+    const el = scroller.current;
+    const kids = slides().filter((k) => k.offsetParent !== null);
+    if (!el || !kids.length) return;
+    const t = kids[Math.max(0, Math.min(kids.length - 1, i))];
+    el.scrollTo({ left: t.offsetLeft - parseFloat(getComputedStyle(el).paddingLeft), behavior: reduce ? "auto" : "smooth" });
   };
-  const go = (n: number) => {
-    const el = ref.current; const k = el?.children[n] as HTMLElement | undefined;
-    if (el && k) el.scrollTo({ left: k.offsetLeft - parseFloat(getComputedStyle(el).paddingLeft || "0"), behavior: "smooth" });
-  };
-  const odd = items.length % 2 === 1;
-  const dots = items.length;
+
+  const count = items.length;
+  const dot = tone === "dark" ? { on: "bg-gold", off: "bg-white/30" } : { on: "bg-navy", off: "bg-navy/25" };
+  const btn = tone === "dark" ? "border-white/40 text-white" : "border-navy/30 text-navy";
   return (
-    <div role="region" aria-label={label} aria-roledescription="carousel">
-      <motion.div ref={ref} onScroll={onScroll} variants={sliderParent} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}
-        className={`relative -mx-4 -mb-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 px-4 pb-8 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:mb-0 md:grid md:snap-none md:overflow-visible md:px-0 md:pb-0 md:pt-0 ${desktop}`}>
+    <div role="region" aria-roledescription="carousel" aria-label={label}>
+      <motion.div ref={scroller} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}
+        variants={{ show: { transition: { staggerChildren: 0.07 } } }}
+        className={`relative -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-8 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:grid md:snap-none md:overflow-visible md:px-0 md:pb-0 md:pt-0 ${grid}`}>
         {items.map((it, i) => (
-          <motion.div key={i} variants={sliderItem}
-            className={`h-full shrink-0 basis-[84%] snap-start sm:basis-[55%] md:basis-auto ${desktopCount !== undefined && i >= desktopCount ? "md:hidden" : ""} ${lastSpan && odd && i === items.length - 1 ? "md:col-span-2" : ""}`}>
+          <motion.div key={i} aria-roledescription="slide" aria-label={`${i + 1} of ${count}`}
+            variants={{ hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}
+            className={`w-[86%] shrink-0 snap-start sm:w-[58%] md:w-auto md:shrink [&>*]:h-full ${desktopMax !== undefined && i >= desktopMax ? "md:hidden" : ""}`}>
             {it}
           </motion.div>
         ))}
       </motion.div>
-      {dots > 1 && (
-        <div className="mt-1 flex justify-center gap-2 md:hidden" role="group" aria-label={`${label} pagination`}>
-          {items.map((_, n) => (
-            <button key={n} type="button" aria-label={`Go to slide ${n + 1}`} aria-current={n === active} onClick={() => go(n)}
-              className={`h-2 rounded-full transition-all duration-300 ${n === active ? "w-6 bg-gold" : "w-2 bg-current opacity-30"}`} />
+      <div className="-mt-3 flex items-center justify-center gap-4 md:hidden">
+        <button type="button" aria-label="Previous" onClick={() => go(active - 1)} disabled={active === 0}
+          className={`grid h-9 w-9 place-items-center rounded-full border transition disabled:opacity-30 ${btn}`}><ChevronLeft size={18} /></button>
+        <div className="flex items-center gap-2">
+          {items.map((_, i) => (
+            <button key={i} type="button" aria-label={`Go to ${i + 1} of ${count}`} aria-current={i === active} onClick={() => go(i)}
+              className={`h-2 rounded-full transition-all duration-300 ${i === active ? `w-6 ${dot.on}` : `w-2 ${dot.off}`}`} />
           ))}
         </div>
-      )}
+        <button type="button" aria-label="Next" onClick={() => go(active + 1)} disabled={active === count - 1}
+          className={`grid h-9 w-9 place-items-center rounded-full border transition disabled:opacity-30 ${btn}`}><ChevronRight size={18} /></button>
+      </div>
     </div>
   );
 }

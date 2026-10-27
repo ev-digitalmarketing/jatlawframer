@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { animate, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
@@ -17,6 +17,11 @@ export default function Monolith() {
   const turns = useMotionValue(0);  // +360 each time we move to the next section
   const sideS = useSpring(side, { stiffness: 60, damping: 18 });
   const turnsS = useSpring(turns, { stiffness: 40, damping: 14 });
+  const [model, setModel] = useState(false); // true once a sculpted public/statue.glb exists, it then replaces the built-in statue
+  useEffect(() => {
+    fetch("/statue.glb", { method: "HEAD" }).then((r) => setModel(r.ok && !(r.headers.get("content-type") || "").includes("html"))).catch(() => {});
+  }, []);
+
   useEffect(() => {
     const a = animate(appear, 1, { duration: 1.8, ease: [0.22, 1, 0.36, 1] });
     const b = animate(intro, 0, { duration: 2.8, ease: [0.22, 1, 0.36, 1] });
@@ -53,11 +58,9 @@ export default function Monolith() {
   if (reduce) return null;
   return (
     <motion.div aria-hidden style={{ x, y }}
-      className="pointer-events-none fixed bottom-3 right-3 z-30 h-[var(--h)] w-[calc(var(--h)*0.57)] xl:bottom-auto xl:left-1/2 xl:right-auto xl:top-1/2 xl:ml-[calc(var(--h)*-0.285)] xl:mt-[calc(var(--h)*-0.5)]">
-      <motion.div style={{ scale, opacity, perspective: 1100 }} className="relative h-full w-full">
-        <div className="absolute left-1/2 top-full -mt-2 h-4 w-3/4 -translate-x-1/2 rounded-full bg-black/40 blur-md" />
-        {/* the scales are wider than the old statue, so the canvas gets more room (kept on-screen on phones) */}
-        <div className="absolute -right-3 top-0 h-full w-[calc(var(--h)*1.0)] xl:left-1/2 xl:right-auto xl:-translate-x-1/2"><Statue rotY={rotateY} /></div>
+      className="pointer-events-none fixed bottom-3 right-3 z-30 h-[var(--h)] w-[calc(var(--h)*0.68)] xl:bottom-auto xl:left-1/2 xl:right-auto xl:top-1/2 xl:ml-[calc(var(--h)*-0.34)] xl:mt-[calc(var(--h)*-0.5)]">
+      <motion.div style={{ scale, opacity }} className="relative h-full w-full">
+        <Statue rotY={rotateY} glb={model} />
       </motion.div>
     </motion.div>
   );

@@ -45,7 +45,7 @@ export default function Contact() {
       </Section>
       <Section tone="navy" label="Reviews">
         <Reveal><h2 className="text-3xl font-extrabold">Why clients recommend us</h2></Reveal>
-        <div className="mt-4"><Testimonials limit={5} desktopCount={2} /></div>
+        <div className="mt-4"><Testimonials /></div>
       </Section>
     </>
   );

@@ -42,7 +42,7 @@ export default function ServicePage({ params }: Props) {
         <Reveal><h2 className="text-3xl font-extrabold">Other services</h2></Reveal>
         <div className="mt-4 flex flex-wrap gap-2">
           {services.filter((x) => x.slug !== s.slug).map((x) => (
-            <Link key={x.slug} href={`/services/${x.slug}`} className="rounded-full bg-white/10 px-4 py-2 font-heading text-sm font-semibold text-white ring-1 ring-gold/50 transition hover:-translate-y-1 hover:bg-gold hover:text-ink">{x.title}</Link>
+            <Link key={x.slug} href={`/services/${x.slug}`} className="rounded-full border border-gold/60 bg-white/5 px-4 py-2 font-heading text-sm font-semibold text-white transition hover:-translate-y-1 hover:bg-gold hover:text-ink">{x.title}</Link>
           ))}
         </div>
       </Section>

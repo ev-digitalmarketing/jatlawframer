@@ -1,97 +1,83 @@
 "use client";
-import { Suspense, useMemo, useRef, type RefObject } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
+import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { ContactShadows, Environment, Lightformer, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { MotionValue } from "framer-motion";
+import { buildLadyJustice } from "./LadyJustice";
 
-// Scales of Justice, built from primitives (no model file). Lit by the studio softboxes below.
-const gold = new THREE.MeshStandardMaterial({ color: "#d4a63a", metalness: 1, roughness: 0.26, envMapIntensity: 1.3, side: THREE.DoubleSide });
-const goldSoft = new THREE.MeshStandardMaterial({ color: "#b88a28", metalness: 1, roughness: 0.4, envMapIntensity: 1.1, side: THREE.DoubleSide });
+const FACING = 0; // degrees. Only used for a custom /statue.glb: if it faces sideways or backwards at rest, try 90, 180 or -90.
 
-const HALF = 0.8;     // half the beam length
-const DROP = 0.62;    // chain length
-const PIVOT_Y = 0.95; // beam height
-const SIZE = 0.9;     // overall size (1 = fills the canvas height)
-const SWAY = 0.12;    // how far the beam rocks (radians)
+/* Polished cast bronze. Vertex colours (baked cavity shading) darken the recesses between the folds. */
+const bronze = new THREE.MeshStandardMaterial({ color: "#b58a4d", metalness: 1, roughness: 0.3, vertexColors: true, envMapIntensity: 1.15 });
+const plinthMat = new THREE.MeshStandardMaterial({ color: "#463b30", metalness: 0.25, roughness: 0.55, envMapIntensity: 0.8 });
 
-const baseProfile = [[0, -1], [0.62, -1], [0.62, -0.94], [0.55, -0.92], [0.5, -0.86], [0.38, -0.8], [0.26, -0.74], [0.16, -0.68], [0.1, -0.62]]
-  .map(([x, y]) => new THREE.Vector2(x, y));
-const panProfile = [[0, -0.075], [0.1, -0.072], [0.2, -0.056], [0.28, -0.03], [0.32, 0], [0.335, 0.014], [0.32, 0.022], [0.3, 0.008], [0.26, -0.02], [0.18, -0.046], [0.09, -0.06], [0, -0.063]]
-  .map(([x, y]) => new THREE.Vector2(x, y));
-const chainEnds = [0, 1, 2].map((k) => { const a = (k * Math.PI * 2) / 3 + Math.PI / 2; return new THREE.Vector3(0.32 * Math.cos(a), -DROP + 0.02, 0.32 * Math.sin(a)); });
-
-function Chain({ to }: { to: THREE.Vector3 }) {
-  const { pos, quat, len } = useMemo(() => ({
-    len: to.length(),
-    pos: to.clone().multiplyScalar(0.5),
-    quat: new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), to.clone().normalize()),
-  }), [to]);
-  return <mesh position={pos} quaternion={quat} material={gold}><cylinderGeometry args={[0.006, 0.006, len, 6]} /></mesh>;
+/** Normalise to 2 units tall, standing on y = -1. A custom model is also centred; the built-in one already turns on its own axis. */
+function normalise(m: THREE.Object3D, centre = true) {
+  const box = new THREE.Box3().setFromObject(m);
+  const size = box.getSize(new THREE.Vector3());
+  const c = box.getCenter(new THREE.Vector3());
+  const s = 2 / size.y;
+  m.scale.setScalar(s);
+  m.position.set(centre ? -c.x * s : 0, -1 - box.min.y * s, centre ? -c.z * s : 0);
 }
 
-function Pan({ x, groupRef }: { x: number; groupRef: RefObject<THREE.Group> }) {
+function Sculpt() {
+  const model = useMemo(() => {
+    const g = buildLadyJustice();
+    g.getObjectByName("bronze")!.traverse((o) => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).material = bronze; });
+    g.getObjectByName("plinth")!.traverse((o) => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).material = plinthMat; });
+    normalise(g, false);
+    return g;
+  }, []);
+  useEffect(() => () => model.traverse((o) => { (o as THREE.Mesh).geometry?.dispose?.(); }), [model]);
+  return <primitive object={model} />;
+}
+
+/** Optional: drop a sculpted model at public/statue.glb and it replaces the procedural statue. */
+function GlbModel() {
+  const { scene } = useGLTF("/statue.glb");
+  const model = useMemo(() => {
+    const m = scene.clone(true);
+    m.traverse((o) => { const mesh = o as THREE.Mesh; if (mesh.isMesh) mesh.material = bronze; });
+    normalise(m);
+    return m;
+  }, [scene]);
+  return <primitive object={model} />;
+}
+
+function Spin({ rotY, children }: { rotY: MotionValue<number>; children: React.ReactNode }) {
+  const g = useRef<THREE.Group>(null);
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => { invalidate(); return rotY.on("change", () => invalidate()); }, [rotY, invalidate]);
+  useFrame(() => { if (g.current) g.current.rotation.y = THREE.MathUtils.degToRad(rotY.get() + FACING); });
+  return <group ref={g}>{children}</group>;
+}
+
+/** A small studio built from light panels, so nothing has to be downloaded. */
+function Studio() {
   return (
-    <group ref={groupRef} position={[x, -0.04, 0]}>
-      <mesh material={goldSoft}><torusGeometry args={[0.04, 0.01, 8, 20]} /></mesh>
-      {chainEnds.map((v, i) => <Chain key={i} to={v} />)}
-      <mesh position={[0, -DROP, 0]} material={gold}><latheGeometry args={[panProfile, 56]} /></mesh>
-      <mesh position={[0, -DROP - 0.115, 0]} rotation={[Math.PI, 0, 0]} material={goldSoft}><coneGeometry args={[0.035, 0.1, 12]} /></mesh>
-    </group>
+    <Environment resolution={256}>
+      <color attach="background" args={["#120d08"]} />
+      <Lightformer form="rect" intensity={7} color="#fff0da" position={[-5, 4, 4]} scale={[6, 5, 1]} />
+      <Lightformer form="rect" intensity={2.2} color="#d4e2ff" position={[6, 1.5, 3]} scale={[4, 8, 1]} />
+      <Lightformer form="rect" intensity={2.2} color="#ffffff" position={[0, 8, 1]} scale={[10, 10, 1]} />
+      <Lightformer form="rect" intensity={6} color="#ffd9a3" position={[0, 3, -7]} scale={[10, 3, 1]} />
+      <Lightformer form="rect" intensity={0.9} color="#b07f45" position={[0, -6, 2]} scale={[14, 14, 1]} />
+      <Lightformer form="rect" intensity={9} color="#ffffff" position={[3.5, 2, 6]} scale={[0.6, 8, 1]} />
+      <Lightformer form="rect" intensity={5} color="#ffe9c8" position={[-6.5, -1, 2]} scale={[0.8, 8, 1]} />
+    </Environment>
   );
 }
 
-function Scales({ rotY }: { rotY: MotionValue<number> }) {
-  const spin = useRef<THREE.Group>(null);
-  const beam = useRef<THREE.Group>(null);
-  const left = useRef<THREE.Group>(null);
-  const right = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
-    if (spin.current) spin.current.rotation.y = THREE.MathUtils.degToRad(rotY.get()); // same spin as the statue had
-    const tilt = SWAY * Math.sin(t * 0.85) * (0.75 + 0.25 * Math.sin(t * 0.31));       // the beam rocking up and down
-    const swing = 0.05 * Math.sin(t * 1.7 + 1.1);                                       // pans swing a little behind it
-    if (beam.current) beam.current.rotation.z = tilt;
-    if (left.current) left.current.rotation.z = -tilt + swing;
-    if (right.current) right.current.rotation.z = -tilt - swing * 0.8;
-  });
+export default function StatueScene({ rotY, glb = false }: { rotY: MotionValue<number>; glb?: boolean }) {
   return (
-    <group ref={spin} scale={SIZE} position={[0, -1 + SIZE, 0]}>
-      {/* base and column */}
-      <mesh material={goldSoft}><latheGeometry args={[baseProfile, 64]} /></mesh>
-      <mesh position={[0, 0.15, 0]} material={gold}><cylinderGeometry args={[0.062, 0.085, 1.6, 32]} /></mesh>
-      {[-0.45, 0, 0.5].map((y) => (
-        <mesh key={y} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} material={goldSoft}><torusGeometry args={[0.095, 0.022, 12, 40]} /></mesh>
-      ))}
-      {/* pivot */}
-      <mesh position={[0, PIVOT_Y, 0]} material={gold}><sphereGeometry args={[0.13, 32, 24]} /></mesh>
-      <mesh position={[0, PIVOT_Y + 0.18, 0]} material={gold}><sphereGeometry args={[0.055, 20, 16]} /></mesh>
-      {/* beam with its two pans */}
-      <group ref={beam} position={[0, PIVOT_Y, 0]}>
-        <mesh rotation={[0, 0, Math.PI / 2]} material={gold}><capsuleGeometry args={[0.035, HALF * 2 - 0.07, 8, 16]} /></mesh>
-        {[-1, 1].map((s) => <mesh key={s} position={[s * HALF, 0, 0]} material={gold}><sphereGeometry args={[0.065, 20, 16]} /></mesh>)}
-        <Pan x={-HALF} groupRef={left} />
-        <Pan x={HALF} groupRef={right} />
-      </group>
-    </group>
-  );
-}
-
-export default function StatueScene({ rotY }: { rotY: MotionValue<number> }) {
-  return (
-    <Canvas camera={{ position: [0, 0.1, 5], fov: 30 }} dpr={[1, 2]} gl={{ alpha: true, antialias: true }}>
+    <Canvas frameloop="demand" camera={{ position: [0, 0.02, 4.25], fov: 30 }} dpr={[1, 2]} gl={{ alpha: true, antialias: true }}>
       <Suspense fallback={null}>
-        <Environment resolution={256}>
-          <color attach="background" args={["#4a3e2a"]} />
-          <Lightformer form="rect" intensity={4} color="#fff4dc" position={[0, 6, 3]} scale={[12, 5, 1]} />
-          <Lightformer form="rect" intensity={3} color="#ffe2a8" position={[-6, 1, 3]} scale={[3, 9, 1]} />
-          <Lightformer form="rect" intensity={2.4} color="#dfeaff" position={[6, 1, 2]} scale={[3, 9, 1]} />
-          <Lightformer form="rect" intensity={1.6} color="#ffffff" position={[0, -4, 4]} scale={[10, 2, 1]} />
-          <Lightformer form="ring" intensity={2} color="#ffd48a" position={[0, 0, -6]} scale={8} />
-        </Environment>
-        <directionalLight position={[3, 4, 3]} intensity={1.1} color="#ffe2b0" />
-        <Scales rotY={rotY} />
-        <ContactShadows position={[0, -1, 0]} opacity={0.55} blur={2.4} scale={4} far={2} />
+        <Studio />
+        <directionalLight position={[3, 5, 4]} intensity={1.1} color="#ffe2b8" />
+        <Spin rotY={rotY}>{glb ? <GlbModel /> : <Sculpt />}</Spin>
+        <ContactShadows position={[0, -1.0, 0]} opacity={0.5} blur={2.4} scale={4} far={1.4} />
       </Suspense>
     </Canvas>
   );
